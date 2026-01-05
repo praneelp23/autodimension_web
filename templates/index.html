@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Engineering Drawing Dimension Extractor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        :root {
+            --bg-main: #0E1117;
+            --bg-card: #161B22;
+            --text-main: #E6EDF3;
+            --accent: #00E5FF;
+            --grid: rgba(0,229,255,0.08);
+        }
+
+        body.light {
+            --bg-main: #F5F7FA;
+            --bg-card: #FFFFFF;
+            --text-main: #0E1117;
+            --accent: #0077FF;
+            --grid: rgba(0,0,0,0.08);
+        }
+
+        body {
+            background: var(--bg-main);
+            color: var(--text-main);
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 30s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes gridMove {
+            to { background-position: 60px 60px; }
+        }
+
+        .hero {
+            min-height: 100vh;
+            padding-bottom: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .hero-box {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 35px rgba(0,229,255,0.25);
+            animation: heroFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes heroFloat {
+            50% { transform: translateY(-10px); }
+        }
+
+        .hero-box h1 span {
+            color: var(--accent);
+        }
+
+        .cta-btn {
+            background: var(--accent);
+            color: #000;
+            animation: pulse 2.5s infinite;
+        }
+
+        @keyframes pulse {
+            50% { box-shadow: 0 0 30px rgba(0,229,255,.9); }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--accent);
+            animation: bounce 1.8s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes bounce {
+            50% { transform: translate(-50%,8px); }
+        }
+
+        .info {
+            padding: 80px 20px;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            transition: .3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 0 30px rgba(0,229,255,0.4);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 60px auto;
+            max-width: 900px;
+        }
+
+        .stat {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat span {
+            font-size: 28px;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .comparison, .confidence-section {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+        }
+
+        .comparison h2,
+        .confidence-section h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px;
+            border: 1px solid var(--accent);
+            text-align: center;
+        }
+
+        th {
+            background: rgba(0,229,255,0.15);
+        }
+
+        .confidence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .confidence-card {
+            padding: 18px;
+            border: 1px solid var(--accent);
+            background: rgba(0,229,255,0.05);
+        }
+
+        .confidence-card h4 {
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            padding: 8px 14px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--accent);
+            padding: 25px;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="theme-toggle" onclick="toggleTheme()">🌙 / ☀️</div>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-box">
+        <h1>
+            Engineering Drawing<br>
+            <span>Dimension Extractor</span>
+        </h1>
+
+        <p class="subtitle">
+            Automatically extract linear dimensions, hole diameters,
+            and fillet radii from engineering drawings using
+            computer vision.
+        </p>
+
+        <a href="/dashboard" class="cta-btn">Open Dimension Extractor</a>
+    </div>
+
+    <div class="scroll-indicator" onclick="scrollToInfo()">↓ Learn More</div>
+</section>
+
+<!-- INFO -->
+<section class="info" id="info">
+    <div class="info-card">
+        <h3>📐 Linear Dimensions</h3>
+        <p>Automatic detection of straight edges and measurements.</p>
+    </div>
+
+    <div class="info-card">
+        <h3>⭕ Circle & Hole Detection</h3>
+        <p>Reliable detection of circular features.</p>
+    </div>
+
+    <div class="info-card">
+        <h3>🟦 Fillet & Corner Radii</h3>
+        <p>Accurate estimation of curved radii.</p>
+    </div>
+</section>
+
+<!-- LIVE STATS -->
+<section class="stats">
+    <div class="stat"><span id="s1">0</span><br>Drawings Processed</div>
+    <div class="stat"><span id="s2">0</span><br>Dimensions Extracted</div>
+    <div class="stat"><span id="s3">0</span><br>Accuracy (%)</div>
+</section>
+
+<!-- FEATURE COMPARISON -->
+<section class="comparison">
+    <h2>Feature Comparison</h2>
+    <table>
+        <tr>
+            <th>Feature</th>
+            <th>Manual</th>
+            <th>This System</th>
+        </tr>
+        <tr><td>Speed</td><td>Slow</td><td>Fast</td></tr>
+        <tr><td>Error Prone</td><td>High</td><td>Low</td></tr>
+        <tr><td>Automation</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Repeatability</td><td>Low</td><td>High</td></tr>
+    </table>
+</section>
+
+<!-- AI CONFIDENCE EXPLANATION -->
+<section class="confidence-section">
+    <h2>AI Confidence Score Explanation</h2>
+
+    <p>
+        Each detected dimension is accompanied by a confidence score that
+        represents how reliably the system identified that feature.
+        This score helps users judge the trustworthiness of extracted measurements.
+    </p>
+
+    <div class="confidence-grid">
+        <div class="confidence-card">
+            <h4>Edge Strength</h4>
+            <p>
+                Strong, continuous edges increase confidence, while broken or noisy
+                edges reduce it.
+            </p>
+        </div>
+
+        <div class="confidence-card">
+            <h4>Geometric Consistency</h4>
+            <p>
+                Dimensions matching expected geometric patterns
+                (parallel lines, circular symmetry) score higher.
+            </p>
+        </div>
+
+        <div class="confidence-card">
+            <h4>Detection Redundancy</h4>
+            <p>
+                Features detected multiple times across scales or orientations
+                receive higher confidence.
+            </p>
+        </div>
+
+        <div class="confidence-card">
+            <h4>Noise & Occlusion</h4>
+            <p>
+                Overlapping annotations, text, or noise reduce confidence values.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <p>
+        Computer Vision Based Engineering Drawing Analysis<br>
+        <span>Academic Demonstration Project</span>
+    </p>
+</footer>
+
+<script>
+function toggleTheme() {
+    document.body.classList.toggle("light");
+}
+
+function scrollToInfo() {
+    document.getElementById("info").scrollIntoView({ behavior: "smooth" });
+}
+
+function animateStat(id, target) {
+    let val = 0;
+    const step = target / 40;
+    const el = document.getElementById(id);
+
+    const t = setInterval(() => {
+        val += step;
+        if (val >= target) {
+            el.textContent = Math.round(target);
+            clearInterval(t);
+        } else {
+            el.textContent = Math.round(val);
+        }
+    }, 30);
+}
+
+animateStat("s1", 120);
+animateStat("s2", 860);
+animateStat("s3", 96);
+</script>
+
+</body>
+</html>

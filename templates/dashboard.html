@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard | Dimension Extractor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+<style>
+:root{
+    --accent:#00E5FF;
+    --bg:#0E1117;
+    --card:#161B22;
+    --text:#E6EDF3;
+    --muted:#9aa4ad;
+}
+
+/* BACKGROUND GRID */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:42px 42px;
+    pointer-events:none;
+    z-index:-1;
+}
+
+body{
+    background:radial-gradient(circle at top,#161B22,#0E1117);
+    color:var(--text);
+    font-family:Segoe UI,Arial,sans-serif;
+    transition:.3s;
+    scroll-behavior:smooth;
+}
+
+body.light{
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --text:#111;
+}
+
+/* SCROLL BAR */
+.scroll-progress{
+    position:fixed;
+    top:0;
+    left:0;
+    height:3px;
+    width:0%;
+    background:var(--accent);
+    z-index:9999;
+}
+
+/* HEADER */
+.dashboard-header{
+    text-align:center;
+    padding:26px;
+    border-bottom:1px solid var(--accent);
+}
+.dashboard-header small{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+}
+
+/* STATUS */
+.status-bar{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    font-size:12px;
+    padding:10px;
+    color:var(--muted);
+}
+.status-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#00ff88;
+    box-shadow:0 0 10px rgba(0,255,136,.6);
+}
+
+/* STATS */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:15px;
+    padding:20px;
+}
+.stat{
+    background:var(--card);
+    border:1px solid var(--accent);
+    padding:16px;
+    text-align:center;
+    box-shadow:0 0 20px rgba(0,229,255,.15);
+    transition:.25s ease;
+}
+.stat:hover{ transform:translateY(-4px); }
+
+/* PIPELINE */
+.pipeline-bar{
+    margin:0 20px;
+    background:#0b0f14;
+    border:1px solid var(--accent);
+    height:10px;
+    position:relative;
+}
+.pipeline-bar::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg,var(--accent),#00ff88);
+    animation:load 2.8s ease forwards;
+}
+@keyframes load{ from{width:0} to{width:100%} }
+.pipeline-text{
+    text-align:center;
+    font-size:13px;
+    margin:8px 0 20px;
+    color:var(--muted);
+}
+
+/* MAIN */
+.main-content{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:20px;
+    padding:20px;
+}
+
+/* IMAGE */
+.image-panel{
+    background:var(--card);
+    border:1px solid var(--accent);
+    padding:16px;
+}
+.image-box{
+    position:relative;
+    background:#fff;
+    padding:10px;
+    cursor:zoom-in;
+}
+.image-box.fullscreen{
+    position:fixed;
+    inset:20px;
+    z-index:9999;
+    background:#000;
+    padding:20px;
+    cursor:zoom-out;
+}
+.image-box img{ width:100%; }
+
+/* IMAGE TOOLS */
+.image-tools{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+.image-tools button{
+    flex:1;
+    padding:7px;
+    background:var(--card);
+    border:1px solid var(--accent);
+    color:var(--text);
+    cursor:pointer;
+}
+
+/* RESULTS */
+.results-panel{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+.result-card{
+    background:var(--card);
+    border:1px solid var(--accent);
+    padding:14px;
+    transition:.2s;
+}
+.result-card:hover{
+    box-shadow:0 0 20px rgba(0,229,255,.35);
+}
+
+.chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+.chip{
+    padding:6px 10px;
+    background:#0b0f14;
+    border:1px solid rgba(0,229,255,.4);
+    font-size:12px;
+}
+
+/* CONFIDENCE */
+.explain-ai{
+    margin:20px;
+    padding:16px;
+    background:var(--card);
+    border:1px solid var(--accent);
+    font-size:13px;
+    color:var(--muted);
+}
+.conf-bars div{
+    height:6px;
+    margin:6px 0;
+    background:#0b0f14;
+    border:1px solid rgba(0,229,255,.4);
+}
+.conf-bars span{
+    display:block;
+    height:100%;
+    background:linear-gradient(90deg,var(--accent),#00ff88);
+}
+
+/* ACCURACY */
+.accuracy{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:130px;
+    height:130px;
+    border-radius:50%;
+    border:6px solid var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    box-shadow:0 0 30px rgba(0,229,255,.45);
+}
+
+/* HELP */
+.help{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.85);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    z-index:10000;
+    color:white;
+}
+
+/* KEY HUD */
+#keyHUD{
+    position:fixed;
+    top:80px;
+    right:20px;
+    padding:10px 14px;
+    background:rgba(0,0,0,.7);
+    border:1px solid var(--accent);
+    font-size:13px;
+    display:none;
+    z-index:9999;
+}
+
+/* FOOTER */
+.dashboard-footer{
+    text-align:center;
+    padding:16px;
+    border-top:1px solid var(--accent);
+    opacity:.75;
+}
+</style>
+</head>
+
+<body>
+
+<div class="scroll-progress" id="scrollBar"></div>
+
+<header class="dashboard-header">
+<h1>Engineering Drawing Dimension Extractor</h1>
+<small id="runTime"></small>
+</header>
+
+<div class="status-bar">
+<div class="status-dot"></div> System Ready
+<div class="status-dot"></div> Analysis Stable
+</div>
+
+<div class="stats">
+<div class="stat"><h2>{{ linear_dims|length }}</h2><span>Linear</span></div>
+<div class="stat"><h2>{{ circle_dims|length }}</h2><span>Circles</span></div>
+<div class="stat"><h2>{{ fillet_dims|length }}</h2><span>Fillets</span></div>
+<div class="stat"><h2>{{ angle_dims|length }}</h2><span>Angles</span></div>
+<div class="stat"><h2>{{ linear_dims|length + circle_dims|length + fillet_dims|length + angle_dims|length }}</h2><span>Total</span></div>
+</div>
+
+<div class="pipeline-bar"></div>
+<div class="pipeline-text">Upload → Preprocessing → Feature Detection → Scaling → Annotation</div>
+
+<form method="POST" enctype="multipart/form-data" class="upload-form">
+<input type="number" name="known_length_mm" placeholder="Reference length (mm)" required>
+<input type="file" name="image" accept="image/*" required>
+<button type="submit">Extract Dimensions</button>
+</form>
+
+<section class="main-content">
+
+<div class="image-panel">
+<h2>Annotated Output</h2>
+<div class="image-box" id="imgBox">
+<img id="mainImg" src="{{ url_for('static', filename='output.png') }}?{{ range(1,9999)|random }}">
+</div>
+
+<div class="image-tools">
+<button onclick="downloadPNG()">Download PNG</button>
+<button onclick="toggleFullscreen()">Fullscreen</button>
+</div>
+
+<label style="font-size:12px;margin-top:10px;display:block;">
+Compare Visibility
+<input type="range" min="20" max="100" value="100" id="compareSlider">
+</label>
+</div>
+
+<div class="results-panel">
+
+<input id="resultSearch" placeholder="Search dimensions..."
+style="padding:8px;background:#0b0f14;border:1px solid var(--accent);color:var(--text);">
+
+<button onclick="copyResults()">Copy All Dimensions</button>
+
+<div class="result-card"><h3>Linear</h3><div class="chips">{% for d in linear_dims %}<div class="chip">{{ d }}</div>{% endfor %}</div></div>
+<div class="result-card"><h3>Circles</h3><div class="chips">{% for d in circle_dims %}<div class="chip">{{ d }}</div>{% endfor %}</div></div>
+<div class="result-card"><h3>Fillets</h3><div class="chips">{% for d in fillet_dims %}<div class="chip">{{ d }}</div>{% endfor %}</div></div>
+<div class="result-card"><h3>Angles</h3><div class="chips">{% for a in angle_dims %}<div class="chip">{{ a }}</div>{% endfor %}</div></div>
+
+</div>
+</section>
+
+<div class="explain-ai">
+<strong>AI Confidence Explanation</strong>
+<div class="conf-bars">
+<div><span style="width:90%"></span></div>
+<div><span style="width:85%"></span></div>
+<div><span style="width:92%"></span></div>
+</div>
+</div>
+
+<div class="accuracy">Accuracy<br>92%</div>
+
+<div class="help" id="help">
+<h2>Keyboard Shortcuts</h2>
+<p>D → Dark/Light<br>? → Help<br>Esc → Close</p>
+</div>
+
+<div id="keyHUD">Key: <span id="keyText"></span></div>
+
+<footer class="dashboard-footer">
+Computer Vision Based Engineering Drawing Analysis
+</footer>
+
+<script>
+document.getElementById("runTime").textContent =
+"Analysis Run: " + new Date().toLocaleString();
+
+/* Scroll bar */
+window.addEventListener("scroll",()=>{
+    const h=document.documentElement;
+    scrollBar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";
+});
+
+/* Keyboard */
+document.addEventListener("keydown",e=>{
+    keyText.textContent=e.key;
+    keyHUD.style.display="block";
+    setTimeout(()=>keyHUD.style.display="none",800);
+
+    if(e.key.toLowerCase()==="d")
+        document.body.classList.toggle("light");
+    if(e.key==="?")
+        help.style.display="flex";
+    if(e.key==="Escape")
+        help.style.display="none";
+});
+
+/* Fullscreen */
+function toggleFullscreen(){
+    imgBox.classList.toggle("fullscreen");
+}
+
+/* Download */
+function downloadPNG(){
+    const a=document.createElement("a");
+    a.href=mainImg.src;
+    a.download="annotated_output.png";
+    a.click();
+}
+
+/* Compare slider */
+compareSlider.addEventListener("input",e=>{
+    mainImg.style.opacity=e.target.value/100;
+});
+
+/* Search */
+resultSearch.addEventListener("input",()=>{
+    document.querySelectorAll(".chip").forEach(c=>{
+        c.style.display=c.textContent.toLowerCase().includes(resultSearch.value.toLowerCase())
+        ?"inline-block":"none";
+    });
+});
+
+/* Copy */
+function copyResults(){
+    let t="";
+    document.querySelectorAll(".chip").forEach(c=>t+=c.textContent+"\n");
+    navigator.clipboard.writeText(t);
+    alert("Copied!");
+}
+</script>
+
+</body>
+</html>

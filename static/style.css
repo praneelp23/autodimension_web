@@ -1,0 +1,101 @@
+/* ===============================
+   GLOBAL
+================================ */
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: radial-gradient(circle at top, #161B22, #0E1117);
+    color: #E6EDF3;
+}
+
+/* ===============================
+   HERO
+================================ */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+.hero-box {
+    max-width: 720px;
+    text-align: center;
+    background: #161B22;
+    border: 1px solid #00E5FF;
+    padding: 50px;
+    box-shadow: 0 0 35px rgba(0, 229, 255, 0.25);
+}
+
+.hero-box h1 {
+    font-size: 38px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.hero-box h1 span {
+    color: #00E5FF;
+}
+
+.subtitle {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #8B949E;
+}
+
+/* ===============================
+   CTA
+================================ */
+.cta-btn {
+    display: inline-block;
+    padding: 14px 36px;
+    background: #00E5FF;
+    color: #0E1117;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: 0.2s ease;
+}
+
+.cta-btn:hover {
+    box-shadow: 0 0 15px #00E5FF;
+    transform: translateY(-1px);
+}
+
+/* ===============================
+   INFO SECTION
+================================ */
+.info {
+    display: flex;
+    gap: 25px;
+    padding: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.info-card {
+    background: #161B22;
+    border: 1px solid #00E5FF;
+    padding: 22px;
+    width: 260px;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
+}
+
+.info-card h3 {
+    color: #00E5FF;
+    margin-top: 0;
+    font-size: 16px;
+}
+
+/* ===============================
+   FOOTER
+================================ */
+.footer {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #00E5FF;
+    font-size: 13px;
+    color: #8B949E;
+}
